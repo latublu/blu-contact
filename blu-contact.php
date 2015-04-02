@@ -18,14 +18,20 @@ class BluContact
 {
 	public $className;
 	
-	public $pluginName = 'Blu Contact Form';
-	public $pluginShortName = 'Contact Form';
+	public $pluginName = 'Blu Contact';
+	public $pluginShortName = 'Contact';
 	
 	public $debug = 0;
 	
 	public $useContactPostType = 0;
 	
 	private $postType = 'contact';
+	
+	private $wpdb = null;
+	
+	private $contactTableName = 'wp_blu_contact';
+	
+	private $exportFilenamePrefix = 'contact_records';
 	
 	public $ra = 0;
 	
@@ -55,6 +61,12 @@ class BluContact
 		define( 'BLU_CONTACT_PLUGIN_PATH', trailingslashit( WP_PLUGIN_DIR.'/'.str_replace(basename( __FILE__ ),"",plugin_basename( __FILE__ ) ) ) );
 		
 		$this->setRa();
+		
+		global $wpdb;
+		
+		$this->wpdb = $wpdb;
+		
+		$this->contactTableName = $this->wpdb->prefix.'blu_contact';
                 
         if( is_admin() )
         {
@@ -109,7 +121,7 @@ class BluContact
         
         if( !(is_admin()) )
         {
-        	
+			add_action( 'wp_enqueue_scripts', array($this,'queueScripts') );
         }
 		
 	}
@@ -455,6 +467,23 @@ class BluContact
 			}
 		}
 	}
+	
+	/*----------------------------------------------------------------------
+	METHOD: queueScripts()
+	----------------------------------------------------------------------*/
+	/**
+	 *  Link javascript files.
+     *
+     */
+	public function queueScripts()
+	{
+		$pluginUri = plugin_dir_url( __FILE__ );
+		
+		wp_enqueue_script( 'jquery-form', $pluginUri . 'js/vendor/jquery.form.min.js', null, '3.51.0', true );
+		wp_enqueue_script( 'jquery-scrollTo', $pluginUri . 'js/vendor/jquery.scrollTo.min.js', null, '3.51.0', true );
+		wp_enqueue_script( 'blu-contact', $pluginUri . 'js/blu-contact.js', null, '1.1.2', true );
+		
+	}
   	
 	/*----------------------------------------------------------------------
 	METHOD: createDb()
@@ -593,6 +622,149 @@ END;
 		
 		return $result;
 	}
+  	
+	/*----------------------------------------------------------------------
+	METHOD: loadAllContactRecords()
+	----------------------------------------------------------------------*/
+	/**
+     * Query for all records in blu_contact table
+     *
+	 * @return mixed
+     */
+	public function loadAllContactRecords()
+	{
+		if ($this->debug)
+		{
+			echo $this->className." loadAllContactRecords...<br />".PHP_EOL;
+			echo "contactTableName: ".$this->contactTableName."<br />".PHP_EOL;
+		}
+		
+		$startingId = 1;
+		
+		$sqlQuery = $this->wpdb->prepare( 
+			"SELECT      *
+			FROM        $this->contactTableName blu_contact
+			WHERE       blu_contact.contact_ID >= %s 
+			ORDER BY    blu_contact.contact_post_ID
+			",
+			$startingId
+			); 
+		
+		if ($this->debug)
+		{
+			echo "sqlQuery: ".$sqlQuery."<br />".PHP_EOL;
+		}
+
+		$results = $this->wpdb->get_results($sqlQuery, 'ARRAY_A'); 
+		
+		if ($this->debug)
+		{
+			echo "results: <pre>".print_r($results, true)."</pre>";
+		}
+		
+		if ($this->debug)
+		{
+			echo $this->className." loadAllContactRecords Completed.<br />".PHP_EOL;
+		}
+		
+		return $results;
+	}
+  	
+	/*----------------------------------------------------------------------
+	METHOD: exportAllContactRecords()
+	----------------------------------------------------------------------*/
+	/**
+     * Export all records from blu_contact table 
+     *
+	 * @return boolean
+     */
+	public function exportAllContactRecords()
+	{
+		if ($this->debug)
+		{
+			echo $this->className." exportAllContactRecords...<br />".PHP_EOL;
+		}
+		
+		$result = 0;
+		
+		$exportFileName = $this->exportFilenamePrefix.'_'.date('Y-m-d-H-i-s').'.xls';
+		
+		$results = $this->loadAllContactRecords();
+		
+		// Require PHP Export Data class file
+		require BLU_CONTACT_PLUGIN_PATH.'/inc/vendor/'.'php-export-data.class.php';
+		
+		// Prep for streaming of the data directly to the browser.
+		$exporter = new ExportDataExcel('browser', $exportFileName);
+
+		
+		if ( empty($results) ) 
+		{
+			if ( $this->debug ) 
+			{
+				echo "no results<br />".PHP_EOL;
+			}
+			else
+			{
+				// Start export of data
+				$exporter->initialize(); 
+
+				// output row
+				$exporter->addRow(array('no records')); 
+				
+				// Write footer, flush remaining data
+				$exporter->finalize(); 
+			}
+		}
+		else
+		{
+			$fieldNames = array_keys($results[0]);
+	
+			array_pop($fieldNames);
+	
+			if ( $this->debug ) 
+			{
+				echo "fieldNames: <pre>".print_r($fieldNames, true)."</pre>";
+				
+				$result = count($results);
+			} 
+			else
+			{
+				// Start export of data
+				$exporter->initialize(); 
+
+				// output header row
+				$exporter->addRow($fieldNames); 
+		
+				// output data rows
+		
+				foreach ($results as $r)
+				{
+					$thisRow = array();
+			
+					foreach ($fieldNames as $f)
+					{
+						array_push($thisRow, $r[$f]);
+					}
+			
+					$exporter->addRow($thisRow); 
+					
+					$result++;
+				}
+				
+				// Write footer, flush remaining data
+				$exporter->finalize(); 
+			}
+		}
+		
+		if ($this->debug)
+		{
+			echo $this->className." exportAllContactRecords Completed.<br />".PHP_EOL;
+			echo "result: ".$result."<br />".PHP_EOL;
+		}
+				
+		return $result;
+	}
 	
 	/*----------------------------------------------------------------------
 	METHOD: adminMenu()
@@ -607,7 +779,12 @@ END;
 	{
 		if ( function_exists('add_options_page') ) 
 		{
-			$page = add_options_page($this->pluginName.' Settings', $this->pluginShortName, 'manage_options', dirname(__FILE__), array($this,'optionsPage'));
+			$optionsPage = add_options_page($this->pluginName.' Settings', $this->pluginShortName, 'manage_options', dirname(__FILE__), array($this,'optionsPage'));
+		}
+		
+		if ( function_exists('add_management_page') ) 
+		{
+			$managementPage = add_management_page($this->pluginName.' Export', $this->pluginShortName.' Export', 'manage_options', dirname(__FILE__), array($this,'managementPage') );
 		}
 	}
 	
@@ -615,7 +792,7 @@ END;
 	METHOD: optionsPage()
 	----------------------------------------------------------------------*/
 	/**
-     * Options Page
+     * Options (Settings) Page
      *
      * 
      *
@@ -629,7 +806,28 @@ END;
 		
 		//echo BLU_CONTACT_PLUGIN_PATH;
 		
-        include(BLU_CONTACT_PLUGIN_PATH . 'includes/admin/optionsPage.php');
+        include(BLU_CONTACT_PLUGIN_PATH . 'inc/admin/optionsPage.php');
+		
+		
+	}
+	
+ 	/*----------------------------------------------------------------------
+	METHOD: managementPage()
+	----------------------------------------------------------------------*/
+	/**
+     * Management (Tools) Page
+     *
+     * 
+     *
+     */
+	public function managementPage()
+	{
+		if ($this->debug)
+		{
+			//echo $this->className." managementPage<br />";
+		}
+		
+        include(BLU_CONTACT_PLUGIN_PATH . 'inc/admin/managementPage.php');
 		
 		
 	}

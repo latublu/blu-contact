@@ -10,7 +10,7 @@ $updatedMessage = '';
 
 //$bluContact->setDebug(1);
 
-if ( @$_POST['updateBluSearchAction'] == 'update'  ) 
+if ( @$_POST['updateBluContactAction'] == 'update'  ) 
 {
 	//echo "<br/>_POST: <pre>".print_r($_POST, true)."</pre>";
 	
@@ -104,7 +104,7 @@ $blucontact_emailNotificationSubject = $bluContact->getOption('blucontact_emailN
 		}
 		?>
 		
-		<input type="hidden" name="updateBluSearchAction" value="update" />
+		<input type="hidden" name="updateBluContactAction" value="update" />
 		
 		<table class="form-table">
 			<tbody>
@@ -232,7 +232,7 @@ $blucontact_emailNotificationSubject = $bluContact->getOption('blucontact_emailN
 		</table>
 
 		<div class="submit">
-			<input id="updateBluSearchSettings" name="updateBluSearchSettings" class="button button-primary" type="submit" value="<?php _e('Update Settings', 'BluSearch') ?>" />
+			<input id="updateBluContactSettings" name="updateBluContactSettings" class="button button-primary" type="submit" value="<?php _e('Update Settings', 'BluContact') ?>" />
 		</div>
 	
 	</form>
