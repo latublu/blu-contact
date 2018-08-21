@@ -49,7 +49,8 @@ echo "Proto Tests<br />".PHP_EOL;
 $r = rand(1111, 9999);
 
 $contact_name = 'Foo Bar'.$r;
-
+$contact_firstName = 'Foo'.$r;
+$contact_lastName = 'Bar'.$r;
 $contact_email = 'foo.bar.'.$r.'@this.com';
 $contact_url = 'this.com';
 $contact_phone = '555-555-1212';
@@ -57,6 +58,8 @@ $contact_country = 'United States';
 $contact_age = '99';
 $contact_note = 'This is a test '.$r.'.';
 
+$contact_remoteAddress = $_SERVER['REMOTE_ADDR'];
+$contact_requestUri = $_SERVER['REQUEST_URI'];
 
 $fieldValues = array( 
 		'contact_post_ID' => 0, 
