@@ -3,7 +3,7 @@
  Plugin Name: Blu Contact Form
  Plugin URI: http://aeonblu.com
  Description: A plugin to process and store form submissions.
- Version: 1.1.1
+ Version: 1.2
  Author: Aeon Blu
  Author URI: http://aeonblu.com
  License: GPL2
