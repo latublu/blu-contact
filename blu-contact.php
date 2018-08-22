@@ -1,9 +1,9 @@
 <?php
 /*
- Plugin Name: Blu Contact Form
+ Plugin Name: Blu Contact
  Plugin URI: http://aeonblu.com
  Description: A plugin to process and store form submissions.
- Version: 1.2.1
+ Version: 1.3.0
  Author: Aeon Blu
  Author URI: http://aeonblu.com
  License: GPL2
@@ -538,10 +538,19 @@ CREATE TABLE IF NOT EXISTS $contactTableName (
   contact_lastName varchar(100) NOT NULL default '',
   contact_email varchar(100) NOT NULL default '',
   contact_url varchar(200) NOT NULL default '',
+  contact_org varchar(200) NOT NULL default '',
   contact_phone varchar(30) NOT NULL default '',
   contact_country varchar(100) NOT NULL default '',
   contact_age varchar(100) NOT NULL default '',
+  contact_comment text NOT NULL,
   contact_note text NOT NULL,
+  contact_note2 text NOT NULL,
+  contact_note3 text NOT NULL,
+  contact_note4 text NOT NULL,
+  contact_optIn tinyint(1) NOT NULL default '0',
+  contact_optIn2 tinyint(1) NOT NULL default '0',
+  contact_optIn3 tinyint(1) NOT NULL default '0',
+  contact_optIn4 tinyint(1) NOT NULL default '0',
   contact_remoteAddress varchar(100) NOT NULL default '',
   contact_requestUri varchar(254) NOT NULL default '',
   contact_date datetime NOT NULL default '0000-00-00 00:00:00',
@@ -552,6 +561,7 @@ CREATE TABLE IF NOT EXISTS $contactTableName (
   KEY contact_date (contact_date),
   KEY contact_date_gmt (contact_date_gmt),
   KEY contact_name (contact_name),
+  KEY contact_fullName (contact_firstName, contact_lastName),
   KEY contact_email (contact_email)
 ) $charset_collate;
 END;
@@ -599,7 +609,7 @@ END;
 		
 		global $wpdb;
 		
-		$fields = array('contact_post_ID', 'contact_name', 'contact_firstName', 'contact_lastName', 'contact_email', 'contact_url', 'contact_phone', 'contact_country', 'contact_age', 'contact_note', 'contact_remoteAddress', 'contact_requestUri');
+		$fields = array('contact_post_ID', 'contact_name', 'contact_firstName', 'contact_lastName', 'contact_email', 'contact_url', 'contact_org', 'contact_phone', 'contact_country', 'contact_age', 'contact_comment', 'contact_note', 'contact_note2', 'contact_note3', 'contact_note4', 'contact_optIn', 'contact_optIn2', 'contact_optIn3', 'contact_optIn4', 'contact_remoteAddress', 'contact_requestUri');
 		
 		if ($this->debug)
 		{
@@ -793,12 +803,12 @@ END;
 	{
 		if ( function_exists('add_options_page') ) 
 		{
-			$optionsPage = add_options_page($this->pluginName.' Settings', $this->pluginShortName, 'manage_options', dirname(__FILE__), array($this,'optionsPage'));
+			$optionsPage = add_options_page($this->pluginName.' Settings', $this->pluginName, 'manage_options', dirname(__FILE__), array($this,'optionsPage'));
 		}
 		
 		if ( function_exists('add_management_page') ) 
 		{
-			$managementPage = add_management_page($this->pluginName.' Export', $this->pluginShortName.' Export', 'manage_options', dirname(__FILE__), array($this,'managementPage') );
+			$managementPage = add_management_page($this->pluginName.' Export', $this->pluginName.' Export', 'manage_options', dirname(__FILE__), array($this,'managementPage') );
 		}
 	}
 	
