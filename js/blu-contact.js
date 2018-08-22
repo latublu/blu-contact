@@ -23,7 +23,7 @@ var bluContactAjaxFormSubmitBlock = 0;
 	// prepare ajaxForm options object 
 	var ajaxFormOptions_Default = { 
 		method:      'POST', 
-		url:        '/wp-content/plugins/blu-contact/async.php', 
+		url:        wp_siteurl+'/wp-content/plugins/blu-contact/async.php', 
 		dataType:	'json',
 		data: { async: '1',
 				bluDebug: $('#blu_contact_debug').fieldValue(),

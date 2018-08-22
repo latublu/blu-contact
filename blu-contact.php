@@ -3,7 +3,7 @@
  Plugin Name: Blu Contact Form
  Plugin URI: http://aeonblu.com
  Description: A plugin to process and store form submissions.
- Version: 1.2
+ Version: 1.2.1
  Author: Aeon Blu
  Author URI: http://aeonblu.com
  License: GPL2
@@ -122,6 +122,8 @@ class BluContact
         if( !(is_admin()) )
         {
 			add_action( 'wp_enqueue_scripts', array($this,'queueScripts') );
+ 			
+ 			add_action( 'wp_footer', array( $this, 'footerScript' ), 1 );
         }
 		
 	}
@@ -482,6 +484,18 @@ class BluContact
 		wp_enqueue_script( 'jquery-form', $pluginUri . 'js/vendor/jquery.form.min.js', null, '3.51.0', true );
 		wp_enqueue_script( 'jquery-scrollTo', $pluginUri . 'js/vendor/jquery.scrollTo.min.js', null, '3.51.0', true );
 		wp_enqueue_script( 'blu-contact', $pluginUri . 'js/blu-contact.js', null, '1.1.2', true );
+		
+	}
+
+	/**
+	 * Footer
+	 *
+	 */
+	public function footerScript() {
+		
+		echo '<script type="text/javascript">'.PHP_EOL;
+		echo 'var wp_siteurl = '.'"'.site_url().'";'.PHP_EOL;
+		echo '</script>'.PHP_EOL;
 		
 	}
   	
