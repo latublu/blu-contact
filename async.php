@@ -54,7 +54,7 @@ $defaultProcessMessage = "Success. Your info is submitted.";
  
 $defaultEmailSubject = 'Contact Form Notification';
 
-$debugThis = (isset($_REQUEST['bluDebugThis'])) ? $_REQUEST['bluDebugThis'] : 0;
+$debugThis = (isset($_REQUEST['blu_contact_debug'])) ? $_REQUEST['blu_contact_debug'] : 0;
 
 if ( !$async && $debugThis ) 
 {
@@ -106,6 +106,7 @@ $form['fieldArr']['note'] = (isset($_POST['note'])) ? trim($_POST['note']) : '';
 
 if ( $debugThis ) 
 {
+	$response['debugArr']['_POST'] = $_POST;
 	$response['debugArr']['fieldArr'] = $form['fieldArr'];
 }
 
@@ -115,43 +116,52 @@ if ( $debugThis )
 
 if ( !empty($form['fieldArr']['blu_contact_ra']) ) 
 {
-	
-	if ( empty($form['fieldArr']['name']) ) 
+	if ( isset($_POST['name']) ) 
 	{
-		$valid = 0;
+		if ( empty($form['fieldArr']['name']) ) 
+		{
+			$valid = 0;
 	
-		array_push($response['errors'], array('code' => 'name_required', 'message' => 'Name required'));
+			$response['errors']['name'] = array('code' => 'name_required', 'label' => 'required', 'message' => 'Name required');
+		} 
+	}
+	
+	if ( isset($_POST['firstName']) || isset($_POST['lastName']) ) 
+	{
+		if ( empty($form['fieldArr']['firstName']) ) 
+		{
+			$valid = 0;
+	
+			$response['errors']['firstName'] = array('code' => 'firstName_required', 'label' => 'required', 'message' => 'First Name required');
+		} 
+	
+		if ( empty($form['fieldArr']['lastName']) ) 
+		{
+			$valid = 0;
+	
+			$response['errors']['lastName'] = array('code' => 'lastName_required', 'label' => 'required', 'message' => 'Last Name required');
+		}
+	}
+	
+	if ( isset($_POST['email']) ) 
+	{
+		if ( empty($form['fieldArr']['email']) ) 
+		{
+			$valid = 0;
+	
+			$response['errors']['email'] = array('code' => 'email_required', 'label' => 'required', 'message' => 'Email required');
+		} 
 	} 
 	
-	/*
-	if ( empty($form['fieldArr']['firstName']) ) 
+	if ( isset($_POST['url']) ) 
 	{
-		$valid = 0;
-	
-		array_push($response['errors'], array('code' => 'firstName_required', 'message' => 'First Name required'));
-	} 
-	
-	if ( empty($form['fieldArr']['lastName']) ) 
-	{
-		$valid = 0;
-	
-		array_push($response['errors'], array('code' => 'lastName_required', 'message' => 'Last Name required'));
-	} 
-	*/
-	
-	if ( empty($form['fieldArr']['email']) ) 
-	{
-		$valid = 0;
-	
-		array_push($response['errors'], array('code' => 'email_required', 'message' => 'Email required'));
-	} 
-	
-	if ( empty($form['fieldArr']['url']) ) 
-	{
-		$valid = 0;
-	
-		array_push($response['errors'], array('code' => 'url_required', 'message' => 'URL required'));
-	} 
+		if ( empty($form['fieldArr']['url']) ) 
+		{
+			$valid = 0;
+			
+			$response['errors']['url'] = array('code' => 'url_required', 'label' => 'required', 'message' => 'URL required');
+		}
+	}
 	
 	$form['valid'] = $valid;
 	
@@ -323,8 +333,8 @@ END;
 	$fieldValues = array( 
 			'contact_post_ID' => 0, 
 			'contact_name' => $name, 
-			'contact_firstName' => '', 
-			'contact_lastName' => '', 
+			'contact_firstName' => $firstName, 
+			'contact_lastName' => $lastName, 
 			'contact_email' => $email, 
 			'contact_url' => $url, 
 			'contact_phone' => $phone, 
