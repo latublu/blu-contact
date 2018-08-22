@@ -95,10 +95,19 @@ $form['fieldArr']['lastName'] = (isset($_POST['lastName'])) ? trim($_POST['lastN
 $form['fieldArr']['name'] = (isset($_POST['name'])) ? trim($_POST['name']) : '';
 $form['fieldArr']['email'] = (isset($_POST['email'])) ? trim($_POST['email']) : '';
 $form['fieldArr']['url'] = (isset($_POST['url'])) ? trim($_POST['url']) : '';
+$form['fieldArr']['org'] = (isset($_POST['org'])) ? trim($_POST['org']) : '';
 $form['fieldArr']['phone'] = (isset($_POST['phone'])) ? trim($_POST['phone']) : '';
 $form['fieldArr']['country'] = (isset($_POST['country'])) ? trim($_POST['country']) : '';
 $form['fieldArr']['age'] = (isset($_POST['age'])) ? trim($_POST['age']) : '';
+$form['fieldArr']['comment'] = (isset($_POST['comment'])) ? trim($_POST['comment']) : '';
 $form['fieldArr']['note'] = (isset($_POST['note'])) ? trim($_POST['note']) : '';
+$form['fieldArr']['note2'] = (isset($_POST['note2'])) ? trim($_POST['note2']) : '';
+$form['fieldArr']['note3'] = (isset($_POST['note3'])) ? trim($_POST['note3']) : '';
+$form['fieldArr']['note4'] = (isset($_POST['note4'])) ? trim($_POST['note4']) : '';
+$form['fieldArr']['optIn'] = (isset($_POST['optIn']) && !empty($_POST['optIn'])) ? true : false;
+$form['fieldArr']['optIn2'] = (isset($_POST['optIn2']) && !empty($_POST['optIn2'])) ? true : false;
+$form['fieldArr']['optIn3'] = (isset($_POST['optIn3']) && !empty($_POST['optIn3'])) ? true : false;
+$form['fieldArr']['optIn4'] = (isset($_POST['optIn4']) && !empty($_POST['optIn4'])) ? true : false;
 
 //echo "fieldArr: <pre>".print_r($form['fieldArr'], true)."</pre>\n";
 
@@ -215,36 +224,22 @@ if ( !empty($form['fieldArr']['blu_contact_ra']) && $valid )
 	
 	$data['Email'] = $form['fieldArr']['email'];
 	$data['Url'] = $form['fieldArr']['url'];
+	$data['Org'] = $form['fieldArr']['org'];
 	$data['Phone'] = $form['fieldArr']['phone'];
 	$data['Country'] = $form['fieldArr']['country'];
 	$data['Age'] = $form['fieldArr']['age'];
+	$data['Comment'] = $form['fieldArr']['comment'];
 	$data['Note'] = $form['fieldArr']['note'];
+	$data['Note2'] = $form['fieldArr']['note2'];
+	$data['Note3'] = $form['fieldArr']['note3'];
+	$data['Note4'] = $form['fieldArr']['note4'];
+	$data['OptIn'] = $form['fieldArr']['optIn'];
+	$data['OptIn2'] = $form['fieldArr']['optIn2'];
+	$data['OptIn3'] = $form['fieldArr']['optIn3'];
+	$data['OptIn4'] = $form['fieldArr']['optIn4'];
 	$data['Submitted On'] = $timeStamp;
 	$data['Submitted By'] = $remoteAddress;
 	$data['Submitted Using'] = $requestUri;
-	
-	$name = $form['fieldArr']['name'];
-	$firstName = $form['fieldArr']['firstName'];
-	$lastName = $form['fieldArr']['lastName'];
-	$email = $form['fieldArr']['email'];
-	$url = $form['fieldArr']['url'];
-	$phone = $form['fieldArr']['phone'];
-	$country = $form['fieldArr']['country'];
-	$age = $form['fieldArr']['age'];
-	$note = $form['fieldArr']['note'];
-	
-	$content = <<<END
-
-Name: $name
-Email: $email
-URL: $url
-Country: $country
-Age: $age
-
-Submitted On: $timeStamp
-Submitted By: $remoteAddress
-Submitted Using: $requestUri
-END;
 
 	// Send Email Notification
 	
@@ -265,8 +260,40 @@ END;
 			{
 				$emailSubject = $defaultEmailSubject;
 			} 
-	
-			$emailBody = stripslashes($content);
+			
+			$emailBody  = '';
+			
+			if (!empty($form['fieldArr']['name'])) $emailBody .= 'Name: '.stripslashes($form['fieldArr']['name']).PHP_EOL;
+			if (!empty($form['fieldArr']['firstName'])) $emailBody .= 'First Name: '.stripslashes($form['fieldArr']['firstName']).PHP_EOL;
+			if (!empty($form['fieldArr']['lastName'])) $emailBody .= 'Last Name: '.stripslashes($form['fieldArr']['lastName']).PHP_EOL;
+			
+			$emailBody .= PHP_EOL;
+			if (!empty($form['fieldArr']['email'])) $emailBody .= 'Email: '.stripslashes($form['fieldArr']['email']).PHP_EOL;
+			
+			$emailBody .= PHP_EOL;
+			if (!empty($form['fieldArr']['url'])) $emailBody .= 'Url: '.stripslashes($form['fieldArr']['url']).PHP_EOL;
+			if (!empty($form['fieldArr']['org'])) $emailBody .= 'Org: '.stripslashes($form['fieldArr']['org']).PHP_EOL;
+			if (!empty($form['fieldArr']['phone'])) $emailBody .= 'Phone: '.stripslashes($form['fieldArr']['phone']).PHP_EOL;
+			if (!empty($form['fieldArr']['country'])) $emailBody .= 'Country: '.stripslashes($form['fieldArr']['country']).PHP_EOL;
+			if (!empty($form['fieldArr']['age'])) $emailBody .= 'Age: '.stripslashes($form['fieldArr']['age']).PHP_EOL;
+			
+			$emailBody .= PHP_EOL;
+			if (!empty($form['fieldArr']['comment'])) $emailBody .= 'Comment: '.PHP_EOL.stripslashes($form['fieldArr']['comment']).PHP_EOL;
+			if (!empty($form['fieldArr']['note'])) $emailBody .= 'Note: '.PHP_EOL.stripslashes($form['fieldArr']['note']).PHP_EOL;
+			if (!empty($form['fieldArr']['note2'])) $emailBody .= 'Note 2: '.PHP_EOL.stripslashes($form['fieldArr']['note2']).PHP_EOL;
+			if (!empty($form['fieldArr']['note3'])) $emailBody .= 'Note 3: '.PHP_EOL.stripslashes($form['fieldArr']['note3']).PHP_EOL;
+			if (!empty($form['fieldArr']['note4'])) $emailBody .= 'Note 4: '.PHP_EOL.stripslashes($form['fieldArr']['note4']).PHP_EOL;
+			
+			$emailBody .= PHP_EOL;
+			if ($form['fieldArr']['optIn']) $emailBody .= 'Opt-in: Yes'.PHP_EOL;
+			if ($form['fieldArr']['optIn2']) $emailBody .= 'Opt-in 2: Yes'.PHP_EOL;
+			if ($form['fieldArr']['optIn3']) $emailBody .= 'Opt-in 3: Yes'.PHP_EOL;
+			if ($form['fieldArr']['optIn4']) $emailBody .= 'Opt-in 4: Yes'.PHP_EOL;
+			
+			$emailBody .= PHP_EOL;
+			$emailBody .= 'Submitted On: '.$timeStamp.PHP_EOL;
+			$emailBody .= 'Submitted By: '.$remoteAddress.PHP_EOL;
+			$emailBody .= 'Submitted Using: '.$requestUri.PHP_EOL;
 			
 			$toName = '';
 			
@@ -332,15 +359,24 @@ END;
 	
 	$fieldValues = array( 
 			'contact_post_ID' => 0, 
-			'contact_name' => $name, 
-			'contact_firstName' => $firstName, 
-			'contact_lastName' => $lastName, 
-			'contact_email' => $email, 
-			'contact_url' => $url, 
-			'contact_phone' => $phone, 
-			'contact_country' => $country, 
-			'contact_age' => $age, 
-			'contact_note' => $note, 
+			'contact_name' => $form['fieldArr']['name'], 
+			'contact_firstName' => $form['fieldArr']['firstName'], 
+			'contact_lastName' => $form['fieldArr']['lastName'], 
+			'contact_email' => $form['fieldArr']['email'], 
+			'contact_url' => $form['fieldArr']['url'], 
+			'contact_org' => $form['fieldArr']['org'], 
+			'contact_phone' => $form['fieldArr']['phone'], 
+			'contact_country' => $form['fieldArr']['country'], 
+			'contact_age' => $form['fieldArr']['age'], 
+			'contact_comment' => $form['fieldArr']['comment'], 
+			'contact_note' => $form['fieldArr']['note'], 
+			'contact_note2' => $form['fieldArr']['note2'], 
+			'contact_note3' => $form['fieldArr']['note3'], 
+			'contact_note4' => $form['fieldArr']['note4'], 
+			'contact_optIn' => $form['fieldArr']['optIn'], 
+			'contact_optIn2' => $form['fieldArr']['optIn2'], 
+			'contact_optIn3' => $form['fieldArr']['optIn3'], 
+			'contact_optIn4' => $form['fieldArr']['optIn4'], 
 			'contact_remoteAddress' => $remoteAddress, 
 			'contact_requestUri' => $requestUri, 
 		   );
